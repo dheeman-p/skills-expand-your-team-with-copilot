@@ -244,6 +244,10 @@ document.addEventListener("DOMContentLoaded", () => {
     if (event.target === loginModal) {
       closeLoginModalHandler();
     }
+    // Close any open share dropdowns when clicking elsewhere
+    if (!event.target.closest(".share-container")) {
+      document.querySelectorAll(".share-dropdown").forEach((d) => d.classList.add("hidden"));
+    }
   });
 
   // Handle login form submission
@@ -568,6 +572,17 @@ document.addEventListener("DOMContentLoaded", () => {
           </div>
         `
         }
+        <div class="share-container">
+          <button class="share-button" aria-label="Share this activity" title="Share this activity">
+            📤 Share
+          </button>
+          <div class="share-dropdown hidden">
+            <a class="share-option share-twitter" href="#" target="_blank" rel="noopener noreferrer">𝕏 Twitter/X</a>
+            <a class="share-option share-facebook" href="#" target="_blank" rel="noopener noreferrer">📘 Facebook</a>
+            <a class="share-option share-whatsapp" href="#" target="_blank" rel="noopener noreferrer">💬 WhatsApp</a>
+            <button class="share-option share-copy">🔗 Copy Link</button>
+          </div>
+        </div>
       </div>
     `;
 
@@ -586,6 +601,55 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       }
     }
+
+    // Add share button functionality
+    const shareButton = activityCard.querySelector(".share-button");
+    const shareDropdown = activityCard.querySelector(".share-dropdown");
+    const shareText = `Check out this activity at Mergington High School: ${name} – ${details.description} (${formattedSchedule})`;
+    const shareUrl = window.location.href;
+
+    shareButton.addEventListener("click", (e) => {
+      e.stopPropagation();
+
+      // Use native Web Share API if available (works great on mobile)
+      if (navigator.share) {
+        navigator.share({
+          title: `${name} – Mergington High School`,
+          text: shareText,
+          url: shareUrl,
+        }).catch(() => {});
+        return;
+      }
+
+      // Fallback: toggle dropdown
+      const isOpen = !shareDropdown.classList.contains("hidden");
+      // Close all other open dropdowns
+      document.querySelectorAll(".share-dropdown").forEach((d) => d.classList.add("hidden"));
+      if (!isOpen) {
+        shareDropdown.classList.remove("hidden");
+      }
+    });
+
+    // Populate share links
+    const encodedText = encodeURIComponent(shareText);
+    const encodedUrl = encodeURIComponent(shareUrl);
+
+    activityCard.querySelector(".share-twitter").href =
+      `https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedUrl}`;
+    activityCard.querySelector(".share-facebook").href =
+      `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}&quote=${encodedText}`;
+    activityCard.querySelector(".share-whatsapp").href =
+      `https://wa.me/?text=${encodeURIComponent(shareText + " " + shareUrl)}`;
+
+    activityCard.querySelector(".share-copy").addEventListener("click", () => {
+      navigator.clipboard.writeText(shareUrl).then(() => {
+        const copyBtn = activityCard.querySelector(".share-copy");
+        const original = copyBtn.textContent;
+        copyBtn.textContent = "✅ Copied!";
+        setTimeout(() => { copyBtn.textContent = original; }, 1500);
+      }).catch(() => {});
+      shareDropdown.classList.add("hidden");
+    });
 
     activitiesList.appendChild(activityCard);
   }
