@@ -9,7 +9,7 @@ jobs:
     # Starts a MongoDB service for Copilot to use during its session.
     services:
       mongo:
-        image: mongo:7
+        image: mongo:7.0.14
         ports:
           - 27017:27017
 
