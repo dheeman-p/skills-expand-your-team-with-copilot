@@ -577,10 +577,10 @@ document.addEventListener("DOMContentLoaded", () => {
             📤 Share
           </button>
           <div class="share-dropdown hidden">
-            <a class="share-option share-twitter" href="#" target="_blank" rel="noopener noreferrer">𝕏 Twitter/X</a>
-            <a class="share-option share-facebook" href="#" target="_blank" rel="noopener noreferrer">📘 Facebook</a>
-            <a class="share-option share-whatsapp" href="#" target="_blank" rel="noopener noreferrer">💬 WhatsApp</a>
-            <button class="share-option share-copy">🔗 Copy Link</button>
+            <a class="share-option share-twitter" href="#" target="_blank" rel="noopener noreferrer" aria-label="Share on Twitter">𝕏 Twitter/X</a>
+            <a class="share-option share-facebook" href="#" target="_blank" rel="noopener noreferrer" aria-label="Share on Facebook">📘 Facebook</a>
+            <a class="share-option share-whatsapp" href="#" target="_blank" rel="noopener noreferrer" aria-label="Share on WhatsApp">💬 WhatsApp</a>
+            <button class="share-option share-copy" aria-label="Copy link to clipboard">🔗 Copy Link</button>
           </div>
         </div>
       </div>
@@ -642,13 +642,16 @@ document.addEventListener("DOMContentLoaded", () => {
       `https://wa.me/?text=${encodeURIComponent(shareText + " " + shareUrl)}`;
 
     activityCard.querySelector(".share-copy").addEventListener("click", () => {
+      shareDropdown.classList.add("hidden");
+      const copyBtn = activityCard.querySelector(".share-copy");
+      const original = copyBtn.textContent;
       navigator.clipboard.writeText(shareUrl).then(() => {
-        const copyBtn = activityCard.querySelector(".share-copy");
-        const original = copyBtn.textContent;
         copyBtn.textContent = "✅ Copied!";
         setTimeout(() => { copyBtn.textContent = original; }, 1500);
-      }).catch(() => {});
-      shareDropdown.classList.add("hidden");
+      }).catch(() => {
+        copyBtn.textContent = "❌ Copy failed";
+        setTimeout(() => { copyBtn.textContent = original; }, 2000);
+      });
     });
 
     activitiesList.appendChild(activityCard);
