@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "hooks": {
+    "sessionStart": [
+      {
+        "type": "command",
+        "bash": "mkdir -p logs && echo \"[$(date -u +%Y-%m-%dT%H:%M:%SZ)] Agent session started\" >> logs/session.log",
+        "cwd": ".",
+        "timeoutSec": 10
+      }
+    ],
+    "preToolUse": [
+      {
+        "type": "command",
+        "bash": "mkdir -p logs && echo \"[$(date -u +%Y-%m-%dT%H:%M:%SZ)] Tool execution: $(cat)\" >> logs/tool-usage.log",
+        "cwd": ".",
+        "timeoutSec": 10
+      }
+    ]
+  }
+}
